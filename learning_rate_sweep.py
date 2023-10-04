@@ -17,15 +17,15 @@ for n in names:
 
 fig = training_plot(ReLU_equal_lr_sweep, 'learning_rate', log_color=True)
 fig.tight_layout()
-fig.savefig('../writeup/ReLU_equal_lr_sweep_training_plot_zero_bias.pdf', )
+fig.savefig('../writeup/ReLU_equal_lr_sweep_training_plot_zero_bias.png', )
 
 fig = sfa_plot(ReLU_equal_lr_sweep, 'learning_rate', [0,2,5])
 fig.tight_layout()
-fig.savefig('../writeup/ReLU_equal_lr_sweep_sfa_plot_zero_bias.pdf')
+fig.savefig('../writeup/ReLU_equal_lr_sweep_sfa_plot_zero_bias.png')
 
 fig = plot_bias(ReLU_equal_lr_sweep, 'learning_rate', log_color=True)
 fig.tight_layout()
-fig.savefig('../writeup/ReLU_equal_lr_sweep_bias_plot_zero_bias.pdf')
+fig.savefig('../writeup/ReLU_equal_lr_sweep_bias_plot_zero_bias.png')
 
 # Load and process data
 log2_batch_size = lambda x: int(23 - np.ceil(np.log2(x)))
@@ -42,15 +42,15 @@ for n in names:
 
 fig = training_plot(ReLU_power_law_lr_sweep, 'learning_rate', log_color=True)
 fig.tight_layout()
-fig.savefig('../writeup/ReLU_power_law_lr_sweep_training_plot_zero_bias.pdf', )
+fig.savefig('../writeup/ReLU_power_law_lr_sweep_training_plot_zero_bias.png', )
 
 fig = sfa_plot(ReLU_power_law_lr_sweep, 'learning_rate', [0,2,5])
 fig.tight_layout()
-fig.savefig('../diagnostic_plots/ReLU_power_law_lr_sweep_sfa_plot_zero_bias.pdf')
+fig.savefig('../diagnostic_plots/ReLU_power_law_lr_sweep_sfa_plot_zero_bias.png')
 
 fig = plot_bias(ReLU_power_law_lr_sweep, 'learning_rate', log_color=True)
 fig.tight_layout()
-fig.savefig('../diagnostic_plots/ReLU_power_law_lr_sweep_bias_plot_zero_bias.pdf')
+fig.savefig('../diagnostic_plots/ReLU_power_law_lr_sweep_bias_plot_zero_bias.png')
 
 # Load and process data
 log2_batch_size = lambda x: int(23 - np.ceil(np.log2(x)))
@@ -67,15 +67,15 @@ for n in names:
 
 fig = training_plot(ReLU_equal_lr_sweep, 'learning_rate', log_color=True)
 fig.tight_layout()
-fig.savefig('../writeup/ReLU_equal_lr_sweep_training_plot_negative_bias.pdf', )
+fig.savefig('../writeup/ReLU_equal_lr_sweep_training_plot_negative_bias.png', )
 
 fig = sfa_plot(ReLU_equal_lr_sweep, 'learning_rate', [0,2,5])
 fig.tight_layout()
-fig.savefig('../writeup/ReLU_equal_lr_sweep_sfa_plot_negative_bias.pdf')
+fig.savefig('../writeup/ReLU_equal_lr_sweep_sfa_plot_negative_bias.png')
 
 fig = plot_bias(ReLU_equal_lr_sweep, 'learning_rate', log_color=True)
 fig.tight_layout()
-fig.savefig('../writeup/ReLU_equal_lr_sweep_bias_plot_negative_bias.pdf')
+fig.savefig('../writeup/ReLU_equal_lr_sweep_bias_plot_negative_bias.png')
 
 # Load and process data
 log2_batch_size = lambda x: int(23 - np.ceil(np.log2(x)))
@@ -92,4 +92,4 @@ for n in names:
 
 fig = training_plot(ReLU_power_law_lr_sweep, 'learning_rate', log_color=True)
 fig.tight_layout()
-fig.savefig('../writeup/ReLU_power_law_lr_sweep_training_plot_negative_bias.pdf')
+fig.savefig('../writeup/ReLU_power_law_lr_sweep_training_plot_negative_bias.png')

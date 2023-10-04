@@ -73,13 +73,37 @@ def single_feature_activations(d, data, setup): # Computes the activations for e
     nonlinearity = data['nonlinearity']
 
     vectors = torch.eye(N)
-    embedder = setup['fixed_embedder']
-    inputs = torch.matmul(vectors,embedder.T)
+    try:
+        embedder = setup['fixed_embedder']
+        inputs = torch.matmul(vectors, embedder.T)
+    except KeyError:
+        # diabetes task
+        inputs = vectors
 
     model = model_builder(d['2.weight'].shape[0], m, k, nonlinearity)
     model.load_state_dict(d)
     outputs = model[:2].forward(inputs).T
     return outputs.detach().numpy()
+
+
+def all_random_feature_activations(d, data, setup): # Computes the activations for each feature on its own
+    m = d['0.weight'].shape[1]
+    k = d['0.weight'].shape[0]
+    N = setup['N']
+    nonlinearity = data['nonlinearity']
+
+    try:
+        embedder = setup['fixed_embedder']
+
+    except KeyError:
+        # diabetes task
+        inputs = vectors
+
+    model = model_builder(d['2.weight'].shape[0], m, k, nonlinearity)
+    model.load_state_dict(d)
+    outputs = model[:2].forward(inputs).T
+    return outputs.detach().numpy()
+
 
 def many_feature_activations(d, data, setup, inds): # Computes the activations for each feature on its own plus feature i
     m = d['0.weight'].shape[1]
