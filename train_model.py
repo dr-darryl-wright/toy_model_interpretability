@@ -156,6 +156,8 @@ def train(setup, model, training_steps, _run):
     models = []
     total_losses = []
     penalised_term_losses = []
+    # first_term_losses = []
+    # second_term_losses = []
 
     # Training loop
     for i in range(training_steps):
@@ -169,7 +171,7 @@ def train(setup, model, training_steps, _run):
         ins = torch.matmul(vs, fixed_embedder.T)
         sfa = model[:2].forward(ins).T
 
-        if penalisation_type in ['all_for_one', 'frac_act']:
+        if penalisation_type in ['all_for_one', 'frac_act', 'sfa_abofa_dot']:
             all_but_one_vs = torch.ones(N, N, device='cuda') - torch.eye(N, device='cuda')
             ins = torch.matmul(all_but_one_vs, fixed_embedder.T)
             abofa = model[:2].forward(ins).T
@@ -285,7 +287,7 @@ def train(setup, model, training_steps, _run):
             unit_srfa = torch.Tensor(srfa > 0).type(torch.float32)
             r = ((torch.sum(unit_sfa) + torch.sum(unit_abofa) + torch.sum(unit_srfa)) - 3*k) / (k*N)
         elif penalisation_type == 'jacob':
-            n_test_feats = N//2
+            n_test_feats = N
             test_feats = torch.randint(0, N, size=(n_test_feats, ))
             single_max_val, single_max_ind = torch.max(sfa[test_feats], dim=1)
             feat_rmvd_rand_inps = gen_inputs_no_feat_vec(N, test_feats, n_test_feats)
@@ -293,6 +295,14 @@ def train(setup, model, training_steps, _run):
             feat_rmvd_hidden = model[:2].forward(feat_rmvd_embed)
             corr_neuron_acts = feat_rmvd_hidden[range(n_test_feats), :, single_max_ind]
             r = torch.sum(corr_neuron_acts) / (n_test_feats * N)
+        elif penalisation_type == 'sfa_abofa_dot':
+            # print(sfa.shape)
+            # print(torch.max(sfa, dim=1)[0].repeat((N, 1)).shape)
+            normed_sfa = torch.nan_to_num(sfa / torch.max(sfa, dim=1)[0].repeat((N, 1)).T)
+            normed_abofa = torch.nan_to_num(abofa / torch.max(abofa, dim=1)[0].repeat((N, 1)).T)
+            first_term = torch.sum(torch.tril(torch.matmul(normed_sfa, normed_sfa.T), -1)) / (N * (N - 1))
+            second_term = torch.sum(torch.diag(torch.matmul(normed_sfa, normed_abofa.T))) / N
+            r = first_term + second_term
         elif penalisation_type == 'baseline':
             r = 0.
         elif penalisation_type == 'l1_baseline':
@@ -326,6 +336,10 @@ def train(setup, model, training_steps, _run):
             penalised_term_losses.append(float(r))
             _run.log_scalar('training.penalised_loss', float(r), i)
             # print(float(r))
+            if penalisation_type == 'sfa_abofa_dot':
+                _run.log_scalar('training.first_term_loss', float(first_term), i)
+                # penalised_term_losses.append(float(r))
+                _run.log_scalar('training.second_term_loss', float(second_term), i)
 
         if (i & (i + 1) == 0) and (i + 1) != 0:  # Checks if i is a power of 2
             models.append(deepcopy(model))
@@ -400,7 +414,7 @@ def run(penalisation_type, m, k, N, task, feature_dist, sample_kind, eps, learni
 
     assert penalisation_type in ['baseline', 'l1_baseline', 'hard_dot', 'soft_dot', 'soft_dot_choose_2',
                                  'soft_dot_choose_2_by_batch', 'soft_dot_choose_2_rand_act', 'frac_mono',
-                                 'all_for_one', 'frac_act', 'jacob']
+                                 'all_for_one', 'frac_act', 'jacob', 'sfa_abofa_dot']
 
     if sample_kind == 'equal':
         sampler = sample_vectors_equal
