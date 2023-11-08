@@ -69,30 +69,45 @@ fig = plot_bias(ReLU_equal_lr_sweep, 'learning_rate', log_color=True)
 fig.tight_layout()
 fig.savefig(os.path.join(root, 'lr_sweep_bias_plot.png'))
 
-with open(os.path.join(root, 'report.csv'), 'w') as csvfile:
-    writer = csv.writer(csvfile)
-    header = ['lr', 'n_mono', 'n_poly', 'n_dead', 'n_mono/n_poly']
-    writer.writerow(header)
+# for batch in ReLU_equal_lr_sweep:
+#     p = os.path.join(root, f'learning_rate_{batch["learning_rate"]}')
+#     try:
+#         os.makedirs(p)
+#     except FileExistsError:
+#         pass
+#     plot_mech_interpretability(batch, p)
+
+with open(os.path.join(root, 'in_domain_report.csv'), 'w') as in_domain_csvfile, \
+     open(os.path.join(root, 'out_of_domain_report.csv'), 'w') as out_of_domain_csvfile:
+    in_domain_writer = csv.writer(in_domain_csvfile)
+    out_of_domain_writer = csv.writer(out_of_domain_csvfile)
+    header = ['lr', 'n_mono', 'n_poly', 'n_dead']
+    in_domain_writer.writerow(header)
+    out_of_domain_writer.writerow(header)
     for batch in ReLU_equal_lr_sweep:
+        print(batch["learning_rate"])
         p = os.path.join(root, f'learning_rate_{batch["learning_rate"]}')
         try:
             os.makedirs(p)
         except FileExistsError:
             pass
+
         fig = plot_bias_vs_freq_activated(batch)
         fig.tight_layout()
         fig.savefig(os.path.join(p, 'bias_vs_n_activating_neurons_plot.png'))
-
+#
         fig, counts = plot_dead_mono_poly(batch, color='#947EB0')
         fig.tight_layout()
         fig.savefig(os.path.join(p, 'dead_mono_poly_plot.png'))
-
+#
         print(counts)
-        row = [batch['learning_rate'], counts[1], counts[0], counts[2], np.float64(counts[1])/np.float64(counts[0])]
-        writer.writerow(row)
-
-        fig = plot_number_activating_neurons_and_features(batch, save_path=p, color='#947EB0')
-        fig.tight_layout()
-        fig.savefig(os.path.join(p, 'number_activating_neurons_and_features_plot.png'))
-
-        plot_mech_interpretability(batch, p)
+        row = [batch['learning_rate'], counts[0][0], counts[0][1], counts[0][2]]
+        in_domain_writer.writerow(row)
+        row = [batch['learning_rate'], counts[1][0], counts[1][1], counts[1][2]]
+        out_of_domain_writer.writerow(row)
+#
+#         fig = plot_number_activating_neurons_and_features(batch, save_path=p, color='#947EB0')
+#         fig.tight_layout()
+#         fig.savefig(os.path.join(p, 'number_activating_neurons_and_features_plot.png'))
+#
+        # plot_mech_interpretability(batch, p)
